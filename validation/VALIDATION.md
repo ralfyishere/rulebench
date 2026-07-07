@@ -7,7 +7,7 @@ First full run of the tool against a real question: does the [rules-with-receipt
 | Test | baseline | pack |
 |---|---|---|
 | misleading-debug | PASS | PASS |
-| scale: stale-context | PASS | PASS |
+| stale-context | PASS | PASS |
 | scope-control | PARTIAL | PARTIAL |
 
 **No test differentiated the conditions at n=3 medians.** Zero quota stubs; all 18 cells graded with evidence quotes.
