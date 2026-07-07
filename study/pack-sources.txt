@@ -1,0 +1,4 @@
+abhishekray07/claude-md-templates b8d939854f
+jrenaldi79/harness-engineering 2ee89e89d8
+oliwoodman/claude-md-templates 8eca5eb039
+smartwhale8/claude-playbook 46dfef7969

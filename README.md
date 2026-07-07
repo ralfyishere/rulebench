@@ -40,6 +40,10 @@ The starter tests will saturate quickly, and public traps invite overfitting. Wr
 2. **Verify the fixture by execution** before trusting any run (the crash must crash, the bait must be real).
 3. Write the rubric before the first run: PASS/PARTIAL/FAIL in terms of observable behavior only.
 
+## Security: rules files are untrusted code
+
+A rules file is instructions that will be followed by an agent with tool access. Before running anyone else's CLAUDE.md or skills through rulebench (or loading them at all), READ THEM: look for network calls, curl-pipe-bash, credential access, instructions to touch files outside the project, or "always run X" directives. We manually vet every third-party artifact before it enters our own studies. Prefer running evals of unfamiliar rules on a machine you don't mind rebuilding, and never with credentials you can't rotate.
+
 ## Honest limitations
 
 - Claude Code headless is the only backend right now (that's what the isolation model is validated against).
