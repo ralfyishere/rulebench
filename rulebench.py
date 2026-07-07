@@ -254,9 +254,23 @@ def main():
     ap.add_argument("--tests", help="comma-separated test names (default: all)")
     ap.add_argument("--conditions", help="comma-separated condition names (default: all)")
     ap.add_argument("--reps", type=int, help="override reps")
+    ap.add_argument("--no-grade", action="store_true",
+                    help="skip model grading; verdicts left UNGRADED for manual review against raw/")
+    ap.add_argument("--list", action="store_true",
+                    help="print discovered tests as JSON (agent-friendly manifest) and exit")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
+    if args.list:
+        tests = load_tests(cfg, only=args.tests.split(",") if args.tests else None)
+        print(json.dumps([{
+            "name": t["name"],
+            "turns": len(t["turns"]),
+            "multi_turn": len(t["turns"]) > 1,
+            "has_fixtures": (t["dir"] / "fixtures").is_dir(),
+            "rubric": t["rubric"],
+        } for t in tests], indent=2))
+        return
     if args.reps:
         cfg["reps"] = args.reps
     if args.conditions:
@@ -288,10 +302,16 @@ def main():
             cells.append(cell)
 
     rubrics = {t["name"]: t["rubric"] for t in tests}
-    print("rulebench: grading %d cells..." % len(cells))
-    with ThreadPoolExecutor(max_workers=cfg["concurrency"]) as pool:
-        futs = [pool.submit(grade_cell, c, rubrics[c["test"]], cfg) for c in cells]
-        cells = [f.result() for f in as_completed(futs)]
+    if args.no_grade:
+        for c in cells:
+            c["verdict"] = "NOT RUN" if c["not_run"] else "UNGRADED"
+            c["evidence"] = "manual grading requested; see raw/"
+        print("rulebench: --no-grade set; grade by hand against the rubrics in tests/")
+    else:
+        print("rulebench: grading %d cells..." % len(cells))
+        with ThreadPoolExecutor(max_workers=cfg["concurrency"]) as pool:
+            futs = [pool.submit(grade_cell, c, rubrics[c["test"]], cfg) for c in cells]
+            cells = [f.result() for f in as_completed(futs)]
 
     report = write_report(cells, tests, cfg)
     print("rulebench: report -> %s" % report)

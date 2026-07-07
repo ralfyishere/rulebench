@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rulebench"
+version = "0.1.0"
+description = "Does your CLAUDE.md actually do anything? Trap-test your agent rules in isolated sessions and get honest deltas."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Rafael Pena" }]
+keywords = ["claude-code", "ai-agents", "llm-evals", "agent-rules", "claude-md"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Software Development :: Testing",
+]
+
+[project.urls]
+Homepage = "https://github.com/ralfyishere/rulebench"
+Issues = "https://github.com/ralfyishere/rulebench/issues"
+
+[project.scripts]
+rulebench = "rulebench:main"
+
+[tool.setuptools]
+py-modules = ["rulebench"]
