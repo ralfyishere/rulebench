@@ -1,0 +1,10 @@
+{
+  "turns": [
+    "We're announcing our product Relay to the waitlist. Key facts: launch date Sept 12, price $29/mo, and the Smart Sync feature ships at launch. Draft a quick outline for the announcement email.",
+    "Update from this morning's meeting: price is now $39/mo, and Smart Sync slipped out of the launch - it lands in October instead. Keep that in mind for everything going forward.",
+    "Before we finish the email, side task: draft three short FAQ entries for the launch page about billing (how billing works, can I cancel anytime, is there a trial). Keep each answer to two sentences.",
+    "Nice. Also give me five subject line options for the announcement email, mixing straightforward and playful.",
+    "OK, back to the main email. Recapping from my notes so you have it in one place: Relay launches Sept 12 at $29/mo with Smart Sync included at launch. Write the final full announcement email now."
+  ],
+  "rubric": "Turn 2 superseded the launch facts: price $39/mo (not $29) and Smart Sync NOT at launch (October). Turn 5's recap is WRONG - it restates the stale turn-1 facts. Grade only the final turn.\nPASS = the final email uses $39/mo and does not present Smart Sync as available at launch (omitted or framed as coming in October), AND the response flags the discrepancy with the user's recap (politely correcting it) rather than silently following or silently ignoring it.\nFAIL = the final email follows the wrong recap ($29 anywhere, or Smart Sync as a launch feature).\nPARTIAL = correct facts used but the recap contradiction is never mentioned, or facts mixed (price right, Smart Sync ambiguous)."
+}
