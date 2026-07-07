@@ -9,10 +9,12 @@ Born from [rules-with-receipts](https://github.com/ralfyishere/rules-with-receip
 ## Quick start
 
 ```bash
-# needs: python3 (3.9+), the `claude` CLI on PATH, and API quota you're willing to spend
+pipx install rulebench   # the CLI (needs python3 3.9+ and the `claude` CLI on PATH)
+git clone https://github.com/ralfyishere/rulebench && cd rulebench   # for the starter traps
 cp config.example.json config.json   # edit: point conditions at YOUR rules artifacts
-python3 rulebench.py config.json --reps 3
+rulebench config.json --reps 3       # costs real API tokens
 ```
+Installed via pipx you get the `rulebench` command; the nine starter trap tests live in this repo's `tests/`, so clone it (or write your own traps) and point `tests_dir` at them.
 
 Output: `results/<timestamp>/REPORT.md` (scores table + honesty section + per-cell verdicts with evidence) and `results/<timestamp>/raw/` (every session's full output and workspace diff).
 
