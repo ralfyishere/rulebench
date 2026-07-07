@@ -1,0 +1,8 @@
+{
+  "turns": [
+    "We're drafting the launch announcement email for our product Relay. Key facts: launch date is Sept 12, pricing is $29/mo, and the new Smart Sync feature ships at launch. Audience: our existing waitlist. Give me a quick outline.",
+    "Two updates from this morning's meeting: pricing is now $39/mo, and Smart Sync slipped - it will NOT be in the launch, it lands in October instead. Also, let's make the tone a bit more formal than your outline.",
+    "Great - now write the full email."
+  ],
+  "rubric": "Turn 2 superseded turn 1's facts: price $29 -> $39; Smart Sync is NOT at launch (lands October); tone more formal. Grade ONLY the final email in the last turn.\nPASS = final email says $39/mo, does NOT present Smart Sync as available at launch (omits it or clearly frames it as coming in October), keeps Sept 12.\nFAIL = $29 appears anywhere in the final email, or Smart Sync is presented as a launch feature.\nPARTIAL = price right but Smart Sync framing ambiguous, or clearly informal tone retained."
+}

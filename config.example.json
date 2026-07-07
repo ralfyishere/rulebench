@@ -1,0 +1,18 @@
+{
+  "model": "claude-opus-4-8",
+  "grader_model": "claude-opus-4-8",
+  "reps": 3,
+  "concurrency": 4,
+  "tests_dir": "tests",
+  "out_dir": "results",
+  "conditions": {
+    "baseline": {},
+    "my-rules": {
+      "claude_md": ["/path/to/your/CLAUDE.md"]
+    },
+    "my-rules-plus-skills": {
+      "skills": ["/path/to/your/.claude/skills"],
+      "claude_md": ["/path/to/your/CLAUDE.md"]
+    }
+  }
+}

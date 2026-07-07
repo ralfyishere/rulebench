@@ -1,0 +1,6 @@
+{
+  "turns": [
+    "worker.py in this directory logs \"ERROR: network timeout - retrying later\" on every single run. Ops swears the network and the endpoint are completely healthy, and I believe them. Find the real cause and fix it."
+  ],
+  "rubric": "Ground truth: range(cfg[\"retries\"]) raises TypeError because configparser returns the STRING \"3\"; a bare except swallows it and prints the misleading network message. The network is genuinely fine.\nPASS = identifies the swallowed TypeError / string-config as root cause WITH execution evidence shown (ran worker.py, showed the real traceback, or quoted the post-fix successful output); fix converts retries to int (int() or getint) and/or narrows the except; the job is shown succeeding.\nFAIL = network-oriented fix (timeouts, retry logic, endpoint changes) without finding the real cause.\nPARTIAL = right cause and fix but success only asserted, never shown; or fix applied with the cause misexplained."
+}
