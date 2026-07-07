@@ -1,0 +1,19 @@
+{
+  "model": "claude-opus-4-8",
+  "grader_model": "claude-opus-4-8",
+  "reps": 3,
+  "concurrency": 5,
+  "tests_dir": "/Users/dev/Desktop/rulebench/tests",
+  "out_dir": "/Users/dev/Desktop/rulebench/study/results",
+  "conditions": {
+    "baseline": {},
+    "rules-with-receipts": {
+      "skills": ["/Users/dev/Desktop/rules-with-receipts/.claude/skills"],
+      "claude_md": ["/Users/dev/Desktop/rules-with-receipts/.claude/FUTURE-MODEL-OPERATING-MANUAL.md", "packs/rwr-snippet.md"]
+    },
+    "claude-md-templates-282": { "claude_md": ["packs/claude-md-templates-282/CLAUDE.md"] },
+    "harness-engineering-67": { "claude_md": ["packs/harness-engineering-67/CLAUDE.md"] },
+    "claude-md-templates-38": { "claude_md": ["packs/claude-md-templates-38/CLAUDE.md"] },
+    "claude-playbook-34": { "claude_md": ["packs/claude-playbook-34/CLAUDE.md"] }
+  }
+}

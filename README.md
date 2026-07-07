@@ -44,7 +44,17 @@ The starter tests will saturate quickly, and public traps invite overfitting. Wr
 
 ## Security: rules files are untrusted code
 
-A rules file is instructions that will be followed by an agent with tool access. Before running anyone else's CLAUDE.md or skills through rulebench (or loading them at all), READ THEM: look for network calls, curl-pipe-bash, credential access, instructions to touch files outside the project, or "always run X" directives. We manually vet every third-party artifact before it enters our own studies. Prefer running evals of unfamiliar rules on a machine you don't mind rebuilding, and never with credentials you can't rotate.
+A rules file is instructions an agent will follow with tool access. Loading an untrusted one is running untrusted code. Screen any third-party CLAUDE.md, .cursorrules, AGENTS.md, or skill before it enters a session:
+
+```bash
+rulebench vet path/to/CLAUDE.md      # a file
+rulebench vet path/to/repo           # or a whole repo (finds rules files)
+rulebench vet ./rules --json         # machine-readable, for CI
+```
+
+`vet` is offline and instant — no model calls. It flags known-shape risks: pipe-to-shell, credential/env access, exfiltration shapes, always-run directives, destructive commands, out-of-project writes, hidden text, and instruction-override language. HIGH means act; MEDIUM means glance. It exits nonzero on HIGH (tune with `--fail-on`), so it drops into CI.
+
+**A clean vet means "no known-shape red flags", not "safe".** Pattern matching cannot catch cleverly-worded natural-language social engineering. Read anything you're about to let an agent follow, run unfamiliar rules on a machine you don't mind rebuilding, and never with credentials you can't rotate.
 
 ## Honest limitations
 

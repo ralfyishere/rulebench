@@ -249,8 +249,14 @@ def write_report(cells, tests, cfg):
 
 
 def main():
+    # `vet` is a subcommand; everything else keeps the original
+    # `rulebench <config> [flags]` interface for backward compatibility.
+    if len(sys.argv) > 1 and sys.argv[1] == "vet":
+        import rb_vet
+        sys.exit(rb_vet.vet_main(sys.argv[2:]))
+
     ap = argparse.ArgumentParser(prog="rulebench", description=__doc__)
-    ap.add_argument("config", help="path to rulebench config JSON")
+    ap.add_argument("config", help="path to rulebench config JSON (or use: rulebench vet <file>)")
     ap.add_argument("--tests", help="comma-separated test names (default: all)")
     ap.add_argument("--conditions", help="comma-separated condition names (default: all)")
     ap.add_argument("--reps", type=int, help="override reps")
