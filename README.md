@@ -1,5 +1,10 @@
 # rulebench
 
+[![ci](https://github.com/ralfyishere/rulebench/actions/workflows/ci.yml/badge.svg)](https://github.com/ralfyishere/rulebench/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/rulebench)](https://pypi.org/project/rulebench/)
+[![Python](https://img.shields.io/pypi/pyversions/rulebench)](https://pypi.org/project/rulebench/)
+[![license](https://img.shields.io/github/license/ralfyishere/rulebench)](LICENSE)
+
 **Does your CLAUDE.md actually do anything? Point rulebench at your rules and find out.**
 
 rulebench runs trap tests across named rule configurations (no rules, your rules, your rules + skills, anything you define) in fresh isolated Claude Code sessions, grades the outputs against pre-written rubrics, and reports honest deltas: what your rules changed, what they didn't, and what never ran.
@@ -25,6 +30,23 @@ Output: `results/<timestamp>/REPORT.md` (scores table + honesty section + per-ce
 - **Every cell is isolated:** fresh temp workspace outside any rules-bearing tree, fresh headless session, workspace diff captured against fixtures.
 - **Grading is rubric-first:** the rubric is written before running; a grader model applies it per cell with schema-enforced verdicts (PASS/PARTIAL/FAIL) and a required evidence quote.
 - **Quota stubs are NOT RUN, never FAIL.** Provider limit messages mid-batch bias results toward whichever condition ran first; rulebench detects and excludes them, and tells you.
+
+## What a run looks like
+
+Real output from the published [six-pack study](study/STUDY.md) (`REPORT.md`, medians of 3 reps):
+
+```
+| Test             | baseline | rules-with-receipts | cmt-282 | harness-67 | cmt-38 | playbook-34 |
+|------------------|----------|---------------------|---------|------------|--------|-------------|
+| deprecated-sweep | FAIL     | PASS                | FAIL    | PASS       | FAIL   | FAIL        |
+| misleading-debug | PASS     | PARTIAL             | PARTIAL | PASS       | PARTIAL| PASS        |
+| scope-control    | PARTIAL  | PARTIAL             | PARTIAL | PARTIAL    | PARTIAL| PARTIAL     |
+
+- Tests that differentiated conditions: deprecated-sweep, misleading-debug.
+  Every other test measured the baseline, not your rules.
+```
+
+(That misleading-debug row? We spot-checked it against `raw/` and reported it as grader noise, with proof — see the study's finding 2. The honesty section is the point.)
 
 ## Reading the report
 
@@ -59,7 +81,25 @@ rulebench vet ./rules --json         # machine-readable, for CI
 
 `vet` is offline and instant — no model calls. It flags known-shape risks: pipe-to-shell, credential/env access, exfiltration shapes, always-run directives, destructive commands, out-of-project writes, hidden text, and instruction-override language. HIGH means act; MEDIUM means glance. It exits nonzero on HIGH (tune with `--fail-on`), so it drops into CI.
 
+Wire it into CI so no rules file lands unscreened:
+
+```yaml
+- name: vet rules files
+  run: pipx run rulebench vet . --fail-on high
+```
+
 **A clean vet means "no known-shape red flags", not "safe".** Pattern matching cannot catch cleverly-worded natural-language social engineering. Read anything you're about to let an agent follow, run unfamiliar rules on a machine you don't mind rebuilding, and never with credentials you can't rotate.
+
+## What this is not
+
+Not a benchmark of model intelligence. Not a leaderboard (it will never print one score out of 100). Not a safety certification — a rules file that passes your traps can still fail in ways you didn't trap. It measures one thing: whether YOUR rules change agent behavior on YOUR traps, with the receipts to check the grading.
+
+## Roadmap
+
+- **Transcript capture** — cells currently capture the final response + workspace diff, so "evidence SHOWN" rubric criteria are ungradeable (proof: study finding 2).
+- **Grader-consistency checks** — flag same-evidence-shape cells graded differently across conditions.
+- **More backends** beyond Claude Code headless; custom grader models.
+- Contributions welcome on all of it: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Honest limitations
 

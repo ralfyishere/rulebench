@@ -1,0 +1,25 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: vet self-test suite
+        run: python test_vet.py
+      - name: vet screens this repo cleanly at HIGH
+        run: python rb_vet.py . --fail-on high
+      - name: package builds
+        run: |
+          python -m pip install --quiet build
+          python -m build --sdist --wheel
