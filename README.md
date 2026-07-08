@@ -7,9 +7,15 @@
 
 **Does your CLAUDE.md actually do anything? Point rulebench at your rules and find out.**
 
-rulebench runs trap tests across named rule configurations (no rules, your rules, your rules + skills, anything you define) in fresh isolated Claude Code sessions, grades the outputs against pre-written rubrics, and reports honest deltas: what your rules changed, what they didn't, and what never ran.
+rulebench runs trap tests across named rule configurations (no rules, your rules, your rules +
+skills, anything you define) in fresh isolated Claude Code sessions, grades the outputs against
+pre-written rubrics, and reports honest deltas: what your rules changed, what they didn't, and
+what never ran.
 
-Born from [rules-with-receipts](https://github.com/ralfyishere/rules-with-receipts), where the eval harness found that most of a rules pack's claimed value was already baseline model behavior, and the real wins were narrow and specific. This tool makes that measurement reusable for any rules file.
+Born from [rules-with-receipts](https://github.com/ralfyishere/rules-with-receipts), where the
+eval harness found that most of a rules pack's claimed value was already baseline model
+behavior, and the real wins were narrow and specific. This tool makes that measurement reusable
+for any rules file.
 
 ## Quick start
 
@@ -19,9 +25,11 @@ git clone https://github.com/ralfyishere/rulebench && cd rulebench   # for the s
 cp config.example.json config.json   # edit: point conditions at YOUR rules artifacts
 rulebench config.json --reps 3       # costs real API tokens
 ```
-Installed via pipx you get the `rulebench` command; the nine starter trap tests live in this repo's `tests/`, so clone it (or write your own traps) and point `tests_dir` at them.
+Installed via pipx you get the `rulebench` command; the nine starter trap tests live in this
+repo's `tests/`, so clone it (or write your own traps) and point `tests_dir` at them.
 
-Output: `results/<timestamp>/REPORT.md` (scores table + honesty section + per-cell verdicts with evidence) and `results/<timestamp>/raw/` (every session's full output and workspace diff).
+Output: `results/<timestamp>/REPORT.md` (scores table + honesty section + per-cell verdicts with
+evidence) and `results/<timestamp>/raw/` (every session's full output and workspace diff).
 
 ## How it works
 
@@ -46,7 +54,8 @@ Real output from the published [six-pack study](study/STUDY.md) (`REPORT.md`, me
   Every other test measured the baseline, not your rules.
 ```
 
-(That misleading-debug row? We spot-checked it against `raw/` and reported it as grader noise, with proof — see the study's finding 2. The honesty section is the point.)
+(That misleading-debug row? We spot-checked it against `raw/` and reported it as grader noise,
+with proof — see the study's finding 2. The honesty section is the point.)
 
 ## Reading the report
 
@@ -71,7 +80,9 @@ The starter tests will saturate quickly, and public traps invite overfitting. Wr
 
 ## Security: rules files are untrusted code
 
-A rules file is instructions an agent will follow with tool access. Loading an untrusted one is running untrusted code. Screen any third-party CLAUDE.md, .cursorrules, AGENTS.md, or skill before it enters a session:
+A rules file is instructions an agent will follow with tool access. Loading an untrusted one is
+running untrusted code. Screen any third-party CLAUDE.md, .cursorrules, AGENTS.md, or skill
+before it enters a session:
 
 ```bash
 rulebench vet path/to/CLAUDE.md      # a file
@@ -79,7 +90,10 @@ rulebench vet path/to/repo           # or a whole repo (finds rules files)
 rulebench vet ./rules --json         # machine-readable, for CI
 ```
 
-`vet` is offline and instant — no model calls. It flags known-shape risks: pipe-to-shell, credential/env access, exfiltration shapes, always-run directives, destructive commands, out-of-project writes, hidden text, and instruction-override language. HIGH means act; MEDIUM means glance. It exits nonzero on HIGH (tune with `--fail-on`), so it drops into CI.
+`vet` is offline and instant — no model calls. It flags known-shape risks: pipe-to-shell,
+credential/env access, exfiltration shapes, always-run directives, destructive commands,
+out-of-project writes, hidden text, and instruction-override language. HIGH means act; MEDIUM
+means glance. It exits nonzero on HIGH (tune with `--fail-on`), so it drops into CI.
 
 Wire it into CI so no rules file lands unscreened:
 
@@ -88,13 +102,19 @@ Wire it into CI so no rules file lands unscreened:
   run: pipx run rulebench vet . --fail-on high
 ```
 
-`vet` covers rules files; whole-repo intake (markdown, MCP configs, hooks, lifecycle scripts, hidden text) is its bigger sibling [agent-zero-trust](https://github.com/ralfyishere/agent-zero-trust) — same engine lineage, same honesty rules, publishes its own false-negative ledger.
+`vet` covers rules files; whole-repo intake (markdown, MCP configs, hooks, lifecycle scripts,
+hidden text) is its bigger sibling
+[agent-zero-trust](https://github.com/ralfyishere/agent-zero-trust) — same engine lineage, same
+honesty rules, publishes its own false-negative ledger.
 
 **A clean vet means "no known-shape red flags", not "safe".** Pattern matching cannot catch cleverly-worded natural-language social engineering. Read anything you're about to let an agent follow, run unfamiliar rules on a machine you don't mind rebuilding, and never with credentials you can't rotate.
 
 ## What this is not
 
-Not a benchmark of model intelligence. Not a leaderboard (it will never print one score out of 100). Not a safety certification — a rules file that passes your traps can still fail in ways you didn't trap. It measures one thing: whether YOUR rules change agent behavior on YOUR traps, with the receipts to check the grading.
+Not a benchmark of model intelligence. Not a leaderboard (it will never print one score out of
+100). Not a safety certification — a rules file that passes your traps can still fail in ways
+you didn't trap. It measures one thing: whether YOUR rules change agent behavior on YOUR traps,
+with the receipts to check the grading.
 
 ## Roadmap
 
