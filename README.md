@@ -88,6 +88,8 @@ Wire it into CI so no rules file lands unscreened:
   run: pipx run rulebench vet . --fail-on high
 ```
 
+`vet` covers rules files; whole-repo intake (markdown, MCP configs, hooks, lifecycle scripts, hidden text) is its bigger sibling [agent-zero-trust](https://github.com/ralfyishere/agent-zero-trust) — same engine lineage, same honesty rules, publishes its own false-negative ledger.
+
 **A clean vet means "no known-shape red flags", not "safe".** Pattern matching cannot catch cleverly-worded natural-language social engineering. Read anything you're about to let an agent follow, run unfamiliar rules on a machine you don't mind rebuilding, and never with credentials you can't rotate.
 
 ## What this is not
