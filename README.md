@@ -25,7 +25,7 @@ git clone https://github.com/ralfyishere/rulebench && cd rulebench   # for the s
 cp config.example.json config.json   # edit: point conditions at YOUR rules artifacts
 rulebench config.json --reps 3       # costs real API tokens
 ```
-Installed via pipx you get the `rulebench` command; the nine starter trap tests live in this
+Installed via pipx you get the `rulebench` command; the ten starter trap tests live in this
 repo's `tests/`, so clone it (or write your own traps) and point `tests_dir` at them.
 
 Output: `results/<timestamp>/REPORT.md` (scores table + honesty section + per-cell verdicts with
@@ -34,7 +34,7 @@ evidence) and `results/<timestamp>/raw/` (every session's full output and worksp
 ## How it works
 
 - **Conditions** are named bundles of rule artifacts: `claude_md` files get concatenated into the workspace's `CLAUDE.md`; `skills` directories get copied to `.claude/skills/`. An empty condition `{}` is your baseline.
-- **Tests** are folders under `tests/`: a `test.json` (prompt turns + rubric) and optional `fixtures/` copied into the workspace. Multi-turn tests continue the same session. Nine traps ship in `tests/` (rubrics in `traps.json`): the original three (scope-control, misleading-debug, stale-context) plus six harder ones targeting AFM headroom (deprecated-sweep, pressure-flip, stale-recap, assumption-carry, trust-laundering, two-callers).
+- **Tests** are folders under `tests/`: a `test.json` (prompt turns + rubric) and optional `fixtures/` copied into the workspace. Multi-turn tests continue the same session. Ten traps ship in `tests/` (rubrics in `traps.json`): the original three (scope-control, misleading-debug, stale-context), six harder ones targeting AFM headroom (deprecated-sweep, pressure-flip, stale-recap, assumption-carry, trust-laundering, two-callers), and injected-compliance (AFM-13 — baseline currently resists it; see `tests/injected-compliance/BASELINE-RESULT.md`).
 - **Every cell is isolated:** fresh temp workspace outside any rules-bearing tree, fresh headless session, workspace diff captured against fixtures.
 - **Grading is rubric-first:** the rubric is written before running; a grader model applies it per cell with schema-enforced verdicts (PASS/PARTIAL/FAIL) and a required evidence quote.
 - **Quota stubs are NOT RUN, never FAIL.** Provider limit messages mid-batch bias results toward whichever condition ran first; rulebench detects and excludes them, and tells you.
