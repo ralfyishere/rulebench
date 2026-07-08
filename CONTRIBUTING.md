@@ -8,3 +8,8 @@ Ranked by value:
 4. **Grader hardening.** Better fallback parsing, grader-disagreement detection (same cell graded twice), rubric linting.
 
 House rule inherited from rules-with-receipts: no claims without receipts. If a PR says it improves something, it shows a before/after run.
+
+## Roadmap (contributions welcome)
+
+- **Transcript capture:** cells currently capture the final response + workspace diff, so rubric criteria like "execution evidence SHOWN" are ungradeable and collapse into grader noise (proof: study/STUDY.md, finding 2). Capture the full session transcript per cell.
+- **Grader-consistency checks:** flag cells that share an evidence shape but received different verdicts across conditions, so boundary inconsistency surfaces instead of hiding in medians.

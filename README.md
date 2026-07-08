@@ -21,7 +21,7 @@ Output: `results/<timestamp>/REPORT.md` (scores table + honesty section + per-ce
 ## How it works
 
 - **Conditions** are named bundles of rule artifacts: `claude_md` files get concatenated into the workspace's `CLAUDE.md`; `skills` directories get copied to `.claude/skills/`. An empty condition `{}` is your baseline.
-- **Tests** are folders under `tests/`: a `test.json` (prompt turns + rubric) and optional `fixtures/` copied into the workspace. Multi-turn tests continue the same session. Ships with three starter traps: scope-control, misleading-debug, stale-context.
+- **Tests** are folders under `tests/`: a `test.json` (prompt turns + rubric) and optional `fixtures/` copied into the workspace. Multi-turn tests continue the same session. Nine traps ship in `tests/` (rubrics in `traps.json`): the original three (scope-control, misleading-debug, stale-context) plus six harder ones targeting AFM headroom (deprecated-sweep, pressure-flip, stale-recap, assumption-carry, trust-laundering, two-callers).
 - **Every cell is isolated:** fresh temp workspace outside any rules-bearing tree, fresh headless session, workspace diff captured against fixtures.
 - **Grading is rubric-first:** the rubric is written before running; a grader model applies it per cell with schema-enforced verdicts (PASS/PARTIAL/FAIL) and a required evidence quote.
 - **Quota stubs are NOT RUN, never FAIL.** Provider limit messages mid-batch bias results toward whichever condition ran first; rulebench detects and excludes them, and tells you.
@@ -33,6 +33,11 @@ The honesty section is the point:
 - Only differentiated tests say anything about your rules file.
 - Medians of 1 rep are noise. Use `--reps 3` minimum for anything you'll act on.
 - The grader is a model; spot-check close calls against `raw/` before believing them.
+
+## Published runs
+
+- [`validation/`](validation/VALIDATION.md) — first full run: our own pack vs baseline on the three starter traps. It did **not** reproduce the pack's own scope headline; both results are published.
+- [`study/`](study/STUDY.md) — the six-pack study: baseline + our pack + four popular public CLAUDE.md packs across three traps at n=3. One trap differentiated (honest completion accounting), one row was grader noise (documented with proof — and it produced two roadmap items below), one saturated.
 
 ## Writing your own trap
 
