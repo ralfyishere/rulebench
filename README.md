@@ -33,11 +33,22 @@ evidence) and `results/<timestamp>/raw/` (every session's full output and worksp
 
 ## How it works
 
-- **Conditions** are named bundles of rule artifacts: `claude_md` files get concatenated into the workspace's `CLAUDE.md`; `skills` directories get copied to `.claude/skills/`. An empty condition `{}` is your baseline.
-- **Tests** are folders under `tests/`: a `test.json` (prompt turns + rubric) and optional `fixtures/` copied into the workspace. Multi-turn tests continue the same session. Ten traps ship in `tests/` (rubrics in `traps.json`): the original three (scope-control, misleading-debug, stale-context), six harder ones targeting AFM headroom (deprecated-sweep, pressure-flip, stale-recap, assumption-carry, trust-laundering, two-callers), and injected-compliance (AFM-13 — baseline currently resists it; see `tests/injected-compliance/BASELINE-RESULT.md`).
-- **Every cell is isolated:** fresh temp workspace outside any rules-bearing tree, fresh headless session, workspace diff captured against fixtures.
-- **Grading is rubric-first:** the rubric is written before running; a grader model applies it per cell with schema-enforced verdicts (PASS/PARTIAL/FAIL) and a required evidence quote.
-- **Quota stubs are NOT RUN, never FAIL.** Provider limit messages mid-batch bias results toward whichever condition ran first; rulebench detects and excludes them, and tells you.
+- **Conditions** are named bundles of rule artifacts: `claude_md` files get concatenated into
+  the workspace's `CLAUDE.md`; `skills` directories get copied to `.claude/skills/`. An empty
+  condition `{}` is your baseline.
+- **Tests** are folders under `tests/`: a `test.json` (prompt turns + rubric) and optional
+  `fixtures/` copied into the workspace. Multi-turn tests continue the same session. Ten traps
+  ship in `tests/` (rubrics in `traps.json`): the original three (scope-control,
+  misleading-debug, stale-context), six harder ones targeting AFM headroom (deprecated-sweep,
+  pressure-flip, stale-recap, assumption-carry, trust-laundering, two-callers), and
+  injected-compliance (AFM-13 — baseline currently resists it; see
+  `tests/injected-compliance/BASELINE-RESULT.md`).
+- **Every cell is isolated:** fresh temp workspace outside any rules-bearing tree, fresh
+  headless session, workspace diff captured against fixtures.
+- **Grading is rubric-first:** the rubric is written before running; a grader model applies it
+  per cell with schema-enforced verdicts (PASS/PARTIAL/FAIL) and a required evidence quote.
+- **Quota stubs are NOT RUN, never FAIL.** Provider limit messages mid-batch bias results toward
+  whichever condition ran first; rulebench detects and excludes them, and tells you.
 
 ## What a run looks like
 
@@ -67,14 +78,20 @@ The honesty section is the point:
 
 ## Published runs
 
-- [`validation/`](validation/VALIDATION.md) — first full run: our own pack vs baseline on the three starter traps. It did **not** reproduce the pack's own scope headline; both results are published.
-- [`study/`](study/STUDY.md) — the six-pack study: baseline + our pack + four popular public CLAUDE.md packs across three traps at n=3. One trap differentiated (honest completion accounting), one row was grader noise (documented with proof — and it produced two roadmap items below), one saturated.
+- [`validation/`](validation/VALIDATION.md) — first full run: our own pack vs baseline on the
+  three starter traps. It did **not** reproduce the pack's own scope headline; both results are
+  published.
+- [`study/`](study/STUDY.md) — the six-pack study: baseline + our pack + four popular public
+  CLAUDE.md packs across three traps at n=3. One trap differentiated (honest completion
+  accounting), one row was grader noise (documented with proof — and it produced two roadmap
+  items below), one saturated.
 
 ## Writing your own trap
 
 The starter tests will saturate quickly, and public traps invite overfitting. Write private ones:
 
-1. Build a fixture where the tempting wrong move differs from the right move (a misleading symptom, a scope temptation, a fact that gets superseded).
+1. Build a fixture where the tempting wrong move differs from the right move (a misleading
+   symptom, a scope temptation, a fact that gets superseded).
 2. **Verify the fixture by execution** before trusting any run (the crash must crash, the bait must be real).
 3. Write the rubric before the first run: PASS/PARTIAL/FAIL in terms of observable behavior only.
 
@@ -107,7 +124,10 @@ hidden text) is its bigger sibling
 [agent-zero-trust](https://github.com/ralfyishere/agent-zero-trust) — same engine lineage, same
 honesty rules, publishes its own false-negative ledger.
 
-**A clean vet means "no known-shape red flags", not "safe".** Pattern matching cannot catch cleverly-worded natural-language social engineering. Read anything you're about to let an agent follow, run unfamiliar rules on a machine you don't mind rebuilding, and never with credentials you can't rotate.
+**A clean vet means "no known-shape red flags", not "safe".** Pattern matching cannot catch
+cleverly-worded natural-language social engineering. Read anything you're about to let an agent
+follow, run unfamiliar rules on a machine you don't mind rebuilding, and never with credentials
+you can't rotate.
 
 ## What this is not
 
@@ -118,7 +138,8 @@ with the receipts to check the grading.
 
 ## Roadmap
 
-- **Transcript capture** — cells currently capture the final response + workspace diff, so "evidence SHOWN" rubric criteria are ungradeable (proof: study finding 2).
+- **Transcript capture** — cells currently capture the final response + workspace diff, so
+  "evidence SHOWN" rubric criteria are ungradeable (proof: study finding 2).
 - **Grader-consistency checks** — flag same-evidence-shape cells graded differently across conditions.
 - **More backends** beyond Claude Code headless; custom grader models.
 - Contributions welcome on all of it: [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -127,8 +148,10 @@ with the receipts to check the grading.
 
 - Claude Code headless is the only backend right now (that's what the isolation model is validated against).
 - Runs cost real API tokens: cells × reps × turns, plus one grader call per cell.
-- Grader and rules under test can share a model family; that bias is disclosed in every report footer, and `raw/` exists so you can regrade by hand.
-- This tool measures behavior deltas on your traps. It does not measure "goodness" and it will never print a single score out of 100.
+- Grader and rules under test can share a model family; that bias is disclosed in every report
+  footer, and `raw/` exists so you can regrade by hand.
+- This tool measures behavior deltas on your traps. It does not measure "goodness" and it will
+  never print a single score out of 100.
 
 ## License
 
