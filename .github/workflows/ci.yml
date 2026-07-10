@@ -20,6 +20,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: vet self-test suite
         run: python test_vet.py
+      - name: runner robustness tests
+        run: python test_runner.py
       - name: vet screens this repo cleanly at HIGH
         run: python rb_vet.py . --fail-on high
       - name: package builds

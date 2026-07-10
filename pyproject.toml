@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rulebench"
-version = "0.2.1"
+version = "0.2.2"
 description = "Does your CLAUDE.md actually do anything? Trap-test your agent rules in isolated sessions and get honest deltas."
 readme = "README.md"
 requires-python = ">=3.9"

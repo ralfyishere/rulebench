@@ -128,12 +128,14 @@ def claude_turn(prompt, work, cfg, session_id=None):
         proc = subprocess.run(cmd, cwd=str(work), capture_output=True,
                               text=True, timeout=cfg["timeout_s"])
     except subprocess.TimeoutExpired:
-        return None, "(rulebench: turn timed out after %ss)" % cfg["timeout_s"]
+        # Third return value `ok`: False marks an infrastructure failure (not a
+        # model output). The caller must invalidate the cell, not grade it.
+        return None, "(rulebench: turn timed out after %ss)" % cfg["timeout_s"], False
     try:
         payload = json.loads(proc.stdout)
-        return payload.get("session_id"), payload.get("result", "")
+        return payload.get("session_id"), payload.get("result", ""), True
     except (json.JSONDecodeError, ValueError):
-        return None, proc.stdout or proc.stderr
+        return None, proc.stdout or proc.stderr, False
 
 
 def workspace_diff(work, test):
@@ -141,7 +143,10 @@ def workspace_diff(work, test):
     if not fixtures.is_dir():
         return "(no fixtures for this test)"
     proc = subprocess.run(
-        ["diff", "-ru", "-x", ".claude", "-x", "CLAUDE.md",
+        # -N: treat absent files as empty so a NEW file the agent created shows its
+        # full contents (a memo, a dumped .diag/) instead of a bare "Only in" line
+        # the grader can't judge.
+        ["diff", "-ruN", "-x", ".claude", "-x", "CLAUDE.md",
          "-x", "__pycache__", "-x", "*.pyc", str(fixtures), str(work)],
         capture_output=True, text=True)
     return proc.stdout or "(no changes to fixture files)"
@@ -157,27 +162,41 @@ def run_cell(test, cond_name, cond, rep, cfg):
     work = Path(tempfile.mkdtemp(prefix="rulebench-%s-%s-r%d-" % (cond_name, test["name"], rep)))
     try:
         build_workspace(work, test, cond, cfg)
-        chunks, sid, stub = [], None, False
+        chunks, sid, stub, infra = [], None, False, None
         for i, turn in enumerate(test["turns"], 1):
-            sid, result = claude_turn(turn, work, cfg, sid)
+            sid, result, ok = claude_turn(turn, work, cfg, sid)
             chunks.append("## TURN %d RESPONSE\n%s\n" % (i, result))
+            if not ok:
+                # Timeout or unparseable output: the model never really answered.
+                # Grading the wreckage (or silently starting a fresh session for the
+                # next turn) would attribute a guaranteed FAIL to the condition.
+                infra = "turn %d timed out or returned unparseable output — cell invalid, not graded" % i
+                break
             if is_stub(result):
                 stub = True
+                break
+            if sid is None and i < len(test["turns"]):
+                # A multi-turn test with no session id to resume: the next turn would
+                # run in a fresh session that never saw the earlier facts.
+                infra = "turn %d returned no session id; the multi-turn conversation could not continue — cell invalid, not graded" % i
                 break
         chunks.append("## FINAL WORKSPACE DIFF\n%s\n" % workspace_diff(work, test))
         raw = "\n".join(chunks)
         out = Path(cfg["_out"]) / "raw" / cond_name
         out.mkdir(parents=True, exist_ok=True)
         (out / ("%s.r%d.md" % (test["name"], rep))).write_text(raw)
+        not_run = stub or (infra is not None)
+        reason = "quota/limit stub" if stub else infra
         return {"test": test["name"], "cond": cond_name, "rep": rep,
-                "raw": raw, "not_run": stub}
+                "raw": raw, "not_run": not_run, "not_run_reason": reason}
     finally:
         shutil.rmtree(work, ignore_errors=True)
 
 
 def grade_cell(cell, rubric, cfg):
     if cell["not_run"]:
-        cell["verdict"], cell["evidence"] = "NOT RUN", "quota/limit stub detected"
+        cell["verdict"] = "NOT RUN"
+        cell["evidence"] = cell.get("not_run_reason") or "quota/limit stub detected"
         return cell
     prompt = GRADER_PROMPT.format(rubric=rubric, output=cell["raw"][:60000])
     cmd = ["claude", "-p", "--output-format", "json", "--model", cfg["grader_model"],
@@ -235,7 +254,7 @@ def write_report(cells, tests, cfg):
     else:
         lines.append("- **No test differentiated the conditions.** Either your rules change nothing these traps measure, or the traps are too easy — both are findings.")
     if not_run_total:
-        lines.append("- **%d cell-rep(s) were NOT RUN** (provider limit stubs) and excluded from medians — never graded as failures." % not_run_total)
+        lines.append("- **%d cell-rep(s) were NOT RUN** (provider limit stub or a mid-cell infrastructure failure — timeout, unparseable output, lost session) and excluded from medians — never graded as failures." % not_run_total)
     lines.append("- The grader is a model with the rubric embedded; spot-check verdicts against `raw/` before acting on close calls.")
     lines.append("")
     lines.append("## Per-cell verdicts")
